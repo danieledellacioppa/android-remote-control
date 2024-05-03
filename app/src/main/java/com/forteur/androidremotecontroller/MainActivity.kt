@@ -44,10 +44,22 @@ fun TermuxInterface(viewModel: TermuxViewModel) {
         Text(text = "Output Termux:", fontWeight = FontWeight.Bold)
         Text(text = log.value)
         Button(onClick = {
-            Log.d("MainActivity", "Invio comando")
+            Log.d("MainActivity", "Invio comando devices")
             viewModel.sendCommand("/data/data/com.termux/files/usr/bin/adb", arrayOf("devices"))
         }) {
-            Text("Invia Comando")
+            Text("Devices connected")
+        }
+        Button(onClick = {
+            Log.d("MainActivity", "Riavvio")
+            viewModel.sendCommand("/data/data/com.termux/files/usr/bin/adb", arrayOf("reboot"))
+        }) {
+            Text("Reboot device")
+        }
+        Button(onClick = {
+            Log.d("MainActivity", "Invio comando whoami")
+            viewModel.sendCommand("/data/data/com.termux/files/usr/bin/adb", arrayOf("shell", "input", "keyevent", "KEYCODE_HOME"))
+        }) {
+            Text("Home")
         }
     }
 }
