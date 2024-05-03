@@ -1,7 +1,6 @@
 package com.forteur.androidremotecontroller
 
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Column
@@ -14,8 +13,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.forteur.androidremotecontroller.ui.theme.AndroidRemoteControllerTheme
 
@@ -37,46 +36,28 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun TermuxInterface(viewModel: TermuxViewModel) {
+fun TermuxInterface(viewModel: TermuxViewModel = TermuxViewModel(application = android.app.Application())) {
+    val lifecycleOwner = LocalLifecycleOwner.current
     val log = viewModel.log.observeAsState("")
 
     Column(modifier = Modifier.padding(16.dp)) {
         Text(text = "Output Termux:", fontWeight = FontWeight.Bold)
-        Text(text = log.value)
+        Text(text = log.value ?: "")
+
         Button(onClick = {
-            Log.d("MainActivity", "Invio comando devices")
-            viewModel.sendCommand("/data/data/com.termux/files/usr/bin/adb", arrayOf("devices"))
+            viewModel.sendCommand(lifecycleOwner, "/data/data/com.termux/files/usr/bin/adb", arrayOf("devices"))
         }) {
             Text("Devices connected")
         }
         Button(onClick = {
-            Log.d("MainActivity", "Riavvio")
-            viewModel.sendCommand("/data/data/com.termux/files/usr/bin/adb", arrayOf("reboot"))
+            viewModel.sendCommand(lifecycleOwner, "/data/data/com.termux/files/usr/bin/adb", arrayOf("reboot"))
         }) {
             Text("Reboot device")
         }
         Button(onClick = {
-            Log.d("MainActivity", "Invio comando whoami")
-            viewModel.sendCommand("/data/data/com.termux/files/usr/bin/adb", arrayOf("shell", "input", "keyevent", "KEYCODE_HOME"))
+            viewModel.sendCommand(lifecycleOwner, "/data/data/com.termux/files/usr/bin/adb", arrayOf("shell", "input", "keyevent", "KEYCODE_HOME"))
         }) {
             Text("Home")
         }
-    }
-}
-
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    AndroidRemoteControllerTheme {
-        Greeting("Android")
     }
 }
