@@ -11,11 +11,23 @@ pluginManagement {
         gradlePluginPortal()
     }
 }
+//@Suppress("JcenterRepositoryObsolete")
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
         google()
         mavenCentral()
+        maven ("https://jitpack.io"){
+//            name = "GitHubPackages"
+//            url = uri("https://maven.pkg.github.com/termux/termux-app")
+
+            credentials {
+                username = "danieledellacioppa"
+
+            }
+        }
+        //noinspection JcenterRepositoryObsolete
+//        jcenter()
     }
 }
 
