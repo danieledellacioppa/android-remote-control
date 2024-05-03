@@ -23,7 +23,7 @@ dependencyResolutionManagement {
 
             credentials {
                 username = "danieledellacioppa"
-
+                password = System.getenv("GITHUB_TOKEN") // Usa una variabile d'ambiente
             }
         }
         //noinspection JcenterRepositoryObsolete
