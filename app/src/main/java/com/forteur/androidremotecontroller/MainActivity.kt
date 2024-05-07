@@ -3,10 +3,12 @@ package com.forteur.androidremotecontroller
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -14,6 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.LifecycleOwner
@@ -42,11 +45,15 @@ class MainActivity : ComponentActivity() {
 
 object AdbCommands {
     const val ADB_PATH = "/data/data/com.termux/files/usr/bin/adb"
-    val CONNECT = arrayOf(ADB_PATH, "connect", "192.168.0.152")
-    val DEVICES = arrayOf(ADB_PATH, "devices")
-    val REBOOT = arrayOf(ADB_PATH, "reboot")
-    val HOME = arrayOf(ADB_PATH, "shell", "input", "keyevent", "KEYCODE_HOME")
+    val CONNECT = CommandDetails(arrayOf(ADB_PATH, "connect", "192.168.0.152"), R.drawable.icon_connect)
+    val DEVICES = CommandDetails(arrayOf(ADB_PATH, "devices"), R.drawable.icon_devices)
+    val REBOOT = CommandDetails(arrayOf(ADB_PATH, "reboot"), R.drawable.icon_reboot)
+    val HOME = CommandDetails(arrayOf(ADB_PATH, "shell", "input", "keyevent", "KEYCODE_HOME"), R.drawable.icon_home)
+    var SHUTDOWN = CommandDetails(arrayOf(ADB_PATH, "shell", "reboot", "-p"), R.drawable.icon_shutdown)
 }
+
+data class CommandDetails(val command: Array<String>, val icon: Int)
+
 
 @Composable
 fun TermuxInterface(viewModel: TermuxViewModel) {
@@ -67,17 +74,22 @@ fun ButtonGroup(viewModel: TermuxViewModel, lifecycleOwner: LifecycleOwner) {
         Pair("Connect to device", AdbCommands.CONNECT),
         Pair("Devices connected", AdbCommands.DEVICES),
         Pair("Reboot device", AdbCommands.REBOOT),
-        Pair("Home", AdbCommands.HOME)
+        Pair("Home", AdbCommands.HOME),
+        Pair("Shutdown", AdbCommands.SHUTDOWN)
     )
 
-    commands.forEach { (label, command) ->
-        CommandButton(label, command, viewModel, lifecycleOwner)
+    commands.forEach { (label, details) ->
+        CommandButton(label, details.command, details.icon, viewModel, lifecycleOwner)
     }
 }
 
 @Composable
-fun CommandButton(label: String, command: Array<String>, viewModel: TermuxViewModel, lifecycleOwner: LifecycleOwner) {
-    Button(onClick = { viewModel.sendCommand(lifecycleOwner, command[0], command.sliceArray(1 until command.size)) }) {
+fun CommandButton(label: String, command: Array<String>, icon: Int, viewModel: TermuxViewModel, lifecycleOwner: LifecycleOwner) {
+    Button(onClick = {
+        viewModel.sendCommand(lifecycleOwner, command[0], command.sliceArray(1 until command.size))
+    }) {
+        Image(painterResource(id = icon), contentDescription = null)
         Text(label)
     }
 }
+
