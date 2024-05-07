@@ -45,6 +45,11 @@ fun TermuxInterface(viewModel: TermuxViewModel = TermuxViewModel(application = a
         Text(text = log.value ?: "")
 
         Button(onClick = {
+            viewModel.sendCommand(lifecycleOwner, "/data/data/com.termux/files/usr/bin/adb", arrayOf("connect", "192.168.0.152"))
+        }) {
+            Text("Connect to device")
+        }
+        Button(onClick = {
             viewModel.sendCommand(lifecycleOwner, "/data/data/com.termux/files/usr/bin/adb", arrayOf("devices"))
         }) {
             Text("Devices connected")
