@@ -67,6 +67,7 @@ object AdbCommands {
     val HOME = CommandDetails(arrayOf(ADB_PATH, "shell", "input", "keyevent", "KEYCODE_HOME"), R.drawable.icon_home)
     val SHUTDOWN = CommandDetails(arrayOf(ADB_PATH, "shell", "reboot", "-p"), R.drawable.icon_shutdown)
     val BACK = CommandDetails(arrayOf(ADB_PATH, "shell", "input", "keyevent", "KEYCODE_BACK"), R.drawable.icon_back)
+    val TOGGLE_SCREEN = CommandDetails(arrayOf(ADB_PATH, "shell", "input", "keyevent", "KEYCODE_POWER"), R.drawable.toggle_screen)
 
     // Lista di tutti i comandi per l'uso in LazyVerticalGrid
     val commands = listOf(
@@ -75,7 +76,8 @@ object AdbCommands {
         Pair("Reboot device", REBOOT),
         Pair("Home", HOME),
         Pair("Shutdown", SHUTDOWN),
-        Pair("Back", BACK)
+        Pair("Back", BACK),
+        Pair("Toggle screen", TOGGLE_SCREEN)
     )
 }
 
