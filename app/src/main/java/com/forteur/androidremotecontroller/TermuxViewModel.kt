@@ -17,11 +17,12 @@ class TermuxViewModel(application: Application) : AndroidViewModel(application) 
         try {
             val executor = TermuxCommandExecutor(getApplication())
             executor.executeCommand(command, args)
-            LogMessageRepository.logMessages.observe(lifecycleOwner, {
-                _log.value = it
+            LogMessageRepository.logMessages.observe(lifecycleOwner, { newOutput ->
+                val currentLog = _log.value ?: ""
+                _log.value = if (currentLog.isEmpty()) newOutput else "$currentLog\n$newOutput"
             })
         } catch (e: TermuxCommandException) {
-            _log.value = "Error: ${e.message}"
+            _log.value = (_log.value ?: "") + "\nError: ${e.message}"
         }
     }
 }

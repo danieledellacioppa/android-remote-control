@@ -19,11 +19,14 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
@@ -51,7 +54,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         viewModel = ViewModelProvider(this)[TermuxViewModel::class.java]
 
-        window.statusBarColor = getColor(R.color.status_bar_color)
+        window.statusBarColor = getColor(R.color.status_bar_color) // probably not producing any effect
         window.navigationBarColor = getColor(R.color.status_bar_color) // Assicurati che status_bar_color sia definito in colors.xml
 
         setContent {
@@ -63,8 +66,6 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
-
-
 
     }
 }
@@ -90,10 +91,7 @@ object AdbCommands {
         Pair("Toggle screen", TOGGLE_SCREEN)
     )
 }
-
-
 data class CommandDetails(val command: Array<String>, val icon: Int)
-
 
 @Composable
 fun TermuxInterface(viewModel: TermuxViewModel) {
@@ -106,10 +104,12 @@ fun TermuxInterface(viewModel: TermuxViewModel) {
                 .padding(16.dp)
                 .background(Color.Black.copy(alpha = 0.1f), RoundedCornerShape(10.dp))
                 .fillMaxWidth()
+                .heightIn(max = 200.dp)  // Limits the Box height to a maximum of 200.dp
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
                 Text(text = "Output Termux:", fontWeight = FontWeight.Bold)
-                Text(text = log.value ?: "")
+                // Adding vertical scroll to text if content is larger than the box
+                Text(text = log.value ?: "", modifier = Modifier.verticalScroll(rememberScrollState()))
             }
         }
 
