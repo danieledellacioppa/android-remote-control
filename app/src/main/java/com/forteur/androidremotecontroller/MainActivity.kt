@@ -50,6 +50,7 @@ object AdbCommands {
     val REBOOT = CommandDetails(arrayOf(ADB_PATH, "reboot"), R.drawable.icon_reboot)
     val HOME = CommandDetails(arrayOf(ADB_PATH, "shell", "input", "keyevent", "KEYCODE_HOME"), R.drawable.icon_home)
     var SHUTDOWN = CommandDetails(arrayOf(ADB_PATH, "shell", "reboot", "-p"), R.drawable.icon_shutdown)
+    val BACK = CommandDetails(arrayOf(ADB_PATH, "shell", "input", "keyevent", "KEYCODE_BACK"), R.drawable.icon_back)
 }
 
 data class CommandDetails(val command: Array<String>, val icon: Int)
@@ -75,7 +76,8 @@ fun ButtonGroup(viewModel: TermuxViewModel, lifecycleOwner: LifecycleOwner) {
         Pair("Devices connected", AdbCommands.DEVICES),
         Pair("Reboot device", AdbCommands.REBOOT),
         Pair("Home", AdbCommands.HOME),
-        Pair("Shutdown", AdbCommands.SHUTDOWN)
+        Pair("Shutdown", AdbCommands.SHUTDOWN),
+        Pair("Back", AdbCommands.BACK)
     )
 
     commands.forEach { (label, details) ->
