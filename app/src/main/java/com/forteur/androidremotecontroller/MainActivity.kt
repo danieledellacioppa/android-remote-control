@@ -128,8 +128,7 @@ fun TermuxInterface(viewModel: TermuxViewModel) {
                     label = command.first,
                     command = command.second.command,
                     icon = command.second.icon,
-                    viewModel = viewModel,
-                    lifecycleOwner = lifecycleOwner
+                    viewModel = viewModel
                 )
             }
         }
@@ -137,33 +136,34 @@ fun TermuxInterface(viewModel: TermuxViewModel) {
 }
 
 @Composable
-fun CommandCard(label: String, command: Array<String>, icon: Int, viewModel: TermuxViewModel, lifecycleOwner: LifecycleOwner) {
+fun CommandCard(label: String, command: Array<String>, icon: Int, viewModel: TermuxViewModel) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(8.dp)  // Aggiunge spazio intorno alla card per una separazione visiva
+            .padding(8.dp)  // Adds visual separation space around the card
             .clickable {
-                viewModel.sendCommand(lifecycleOwner, command[0], command.sliceArray(1 until command.size))
+                // Here we update how sendCommand is called, we only need to pass the command and its arguments.
+                viewModel.sendCommand(command[0], command.sliceArray(1 until command.size))
             },
         shape = MaterialTheme.shapes.medium
     ) {
         Column(
             modifier = Modifier
-                .padding(16.dp)  // Padding interno per spaziare uniformemente i contenuti
+                .padding(16.dp)  // Internal padding to evenly space the contents
                 .fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally,  // Centra il contenuto orizzontalmente
-            verticalArrangement = Arrangement.Center  // Centra il contenuto verticalmente
+            horizontalAlignment = Alignment.CenterHorizontally,  // Centers the content horizontally
+            verticalArrangement = Arrangement.Center  // Centers the content vertically
         ) {
             Image(
                 painter = painterResource(id = icon),
                 contentDescription = label,
                 modifier = Modifier
-                    .padding(bottom = 8.dp)  // Spazio tra l'icona e il testo
+                    .padding(bottom = 8.dp)  // Space between the icon and the text
             )
             Text(
                 text = label,
                 style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurface  // Assicura che il testo sia leggibile sullo sfondo della card
+                color = MaterialTheme.colorScheme.onSurface  // Ensures the text is readable on the card background
             )
         }
     }

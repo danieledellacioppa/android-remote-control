@@ -13,17 +13,31 @@ class TermuxViewModel(application: Application) : AndroidViewModel(application) 
     private val _log = MutableLiveData<String>()
     val log: LiveData<String> = _log
 
-    fun sendCommand(lifecycleOwner: LifecycleOwner, command: String, args: Array<String>) {
+    init {
+        LogMessageRepository.logMessages.observeForever {
+            val currentLog = _log.value ?: ""
+            _log.value = if (currentLog.isEmpty()) it else "$currentLog\n$it"
+        }
+    }
+
+    fun sendCommand(command: String, args: Array<String>) {
         try {
             val executor = TermuxCommandExecutor(getApplication())
             executor.executeCommand(command, args)
-            LogMessageRepository.logMessages.observe(lifecycleOwner, { newOutput ->
-                val currentLog = _log.value ?: ""
-                _log.value = if (currentLog.isEmpty()) newOutput else "$currentLog\n$newOutput"
-            })
         } catch (e: TermuxCommandException) {
-            _log.value = (_log.value ?: "") + "\nError: ${e.message}"
+            appendToLog("Error: ${e.message}")
         }
     }
+
+    private fun appendToLog(message: String) {
+        val currentLog = _log.value ?: ""
+        _log.value = if (currentLog.isEmpty()) message else "$currentLog\n$message"
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        LogMessageRepository.logMessages.removeObserver { /* Observer you added */ }
+    }
 }
+
 
