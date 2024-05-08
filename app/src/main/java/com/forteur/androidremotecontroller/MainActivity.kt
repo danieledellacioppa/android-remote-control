@@ -1,6 +1,10 @@
 package com.forteur.androidremotecontroller
 
+import android.os.Build
 import android.os.Bundle
+import android.view.Window
+import android.view.WindowInsetsController
+import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
@@ -31,6 +35,7 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -46,16 +51,21 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         viewModel = ViewModelProvider(this)[TermuxViewModel::class.java]
 
+        window.statusBarColor = getColor(R.color.status_bar_color)
+        window.navigationBarColor = getColor(R.color.status_bar_color) // Assicurati che status_bar_color sia definito in colors.xml
+
         setContent {
             AndroidRemoteControllerTheme {
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
-                ) {
+                // Imposta lo sfondo della tua app
+                val backgroundColor = MaterialTheme.colorScheme.background
+                Surface(modifier = Modifier.fillMaxSize(), color = Color.Gray) {
                     TermuxInterface(viewModel)
                 }
             }
         }
+
+
+
     }
 }
 
