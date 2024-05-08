@@ -34,6 +34,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -66,7 +67,6 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
-
     }
 }
 
@@ -97,20 +97,28 @@ data class CommandDetails(val command: Array<String>, val icon: Int)
 fun TermuxInterface(viewModel: TermuxViewModel) {
     val lifecycleOwner = LocalLifecycleOwner.current
     val log = viewModel.log.observeAsState("")
+    val scrollState = rememberScrollState()  // Declared once and used for the Text composable
 
-    Column(modifier = Modifier.fillMaxSize()) {  // Main column that wraps everything
+    Column(modifier = Modifier.fillMaxSize()) {
         Box(
             modifier = Modifier
                 .padding(16.dp)
                 .background(Color.Black.copy(alpha = 0.1f), RoundedCornerShape(10.dp))
                 .fillMaxWidth()
-                .heightIn(max = 200.dp)  // Limits the Box height to a maximum of 200.dp
+                .heightIn(max = 200.dp)
         ) {
-            Column(modifier = Modifier.padding(16.dp)) {
+            Column(modifier = Modifier
+                .padding(16.dp)
+                .verticalScroll(scrollState)  // Use the same scrollState here
+            ) {
                 Text(text = "Output Termux:", fontWeight = FontWeight.Bold)
-                // Adding vertical scroll to text if content is larger than the box
-                Text(text = log.value ?: "", modifier = Modifier.verticalScroll(rememberScrollState()))
+                Text(text = log.value ?: "", modifier = Modifier.padding(bottom = 8.dp))
             }
+        }
+
+        // LaunchedEffect to automatically scroll to the bottom
+        LaunchedEffect(key1 = log.value) {  // Ensure it triggers on log value change
+            scrollState.animateScrollTo(scrollState.maxValue)
         }
 
         Spacer(modifier = Modifier.height(16.dp))  // Adds space between the box and the grid
