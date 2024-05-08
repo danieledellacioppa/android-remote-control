@@ -4,17 +4,22 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
@@ -25,6 +30,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -59,9 +65,20 @@ object AdbCommands {
     val DEVICES = CommandDetails(arrayOf(ADB_PATH, "devices"), R.drawable.icon_devices)
     val REBOOT = CommandDetails(arrayOf(ADB_PATH, "reboot"), R.drawable.icon_reboot)
     val HOME = CommandDetails(arrayOf(ADB_PATH, "shell", "input", "keyevent", "KEYCODE_HOME"), R.drawable.icon_home)
-    var SHUTDOWN = CommandDetails(arrayOf(ADB_PATH, "shell", "reboot", "-p"), R.drawable.icon_shutdown)
+    val SHUTDOWN = CommandDetails(arrayOf(ADB_PATH, "shell", "reboot", "-p"), R.drawable.icon_shutdown)
     val BACK = CommandDetails(arrayOf(ADB_PATH, "shell", "input", "keyevent", "KEYCODE_BACK"), R.drawable.icon_back)
+
+    // Lista di tutti i comandi per l'uso in LazyVerticalGrid
+    val commands = listOf(
+        Pair("Connect to device", CONNECT),
+        Pair("Devices connected", DEVICES),
+        Pair("Reboot device", REBOOT),
+        Pair("Home", HOME),
+        Pair("Shutdown", SHUTDOWN),
+        Pair("Back", BACK)
+    )
 }
+
 
 data class CommandDetails(val command: Array<String>, val icon: Int)
 
@@ -71,33 +88,38 @@ fun TermuxInterface(viewModel: TermuxViewModel) {
     val lifecycleOwner = LocalLifecycleOwner.current
     val log = viewModel.log.observeAsState("")
 
-    Column(modifier = Modifier.padding(16.dp)) {
-        Text(text = "Output Termux:", fontWeight = FontWeight.Bold)
-        Text(text = log.value ?: "")
+    Column(modifier = Modifier.fillMaxSize()) {  // Main column that wraps everything
+        Box(
+            modifier = Modifier
+                .padding(16.dp)
+                .background(Color.Black.copy(alpha = 0.1f), RoundedCornerShape(10.dp))
+                .fillMaxWidth()
+        ) {
+            Column(modifier = Modifier.padding(16.dp)) {
+                Text(text = "Output Termux:", fontWeight = FontWeight.Bold)
+                Text(text = log.value ?: "")
+            }
+        }
 
-        ButtonGroup(viewModel, lifecycleOwner)
-    }
-}
+        Spacer(modifier = Modifier.height(16.dp))  // Adds space between the box and the grid
 
-@Composable
-fun ButtonGroup(viewModel: TermuxViewModel, lifecycleOwner: LifecycleOwner) {
-    val commands = listOf(
-        Pair("Connect to device", AdbCommands.CONNECT),
-        Pair("Devices connected", AdbCommands.DEVICES),
-        Pair("Reboot device", AdbCommands.REBOOT),
-        Pair("Home", AdbCommands.HOME),
-        Pair("Shutdown", AdbCommands.SHUTDOWN),
-        Pair("Back", AdbCommands.BACK)
-    )
-
-    LazyVerticalGrid(
-        columns = GridCells.Fixed(3), // Imposta il numero di colonne
-        contentPadding = PaddingValues(8.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        items(commands) { command ->
-            CommandCard(command.first, command.second.command, command.second.icon, viewModel, lifecycleOwner)
+        // LazyVerticalGrid that displays the command buttons
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(3), // Set the number of columns
+            contentPadding = PaddingValues(8.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier.fillMaxWidth().weight(1f)  // Takes up all remaining space
+        ) {
+            items(AdbCommands.commands) { command ->
+                CommandCard(
+                    label = command.first,
+                    command = command.second.command,
+                    icon = command.second.icon,
+                    viewModel = viewModel,
+                    lifecycleOwner = lifecycleOwner
+                )
+            }
         }
     }
 }
