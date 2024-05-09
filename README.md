@@ -12,6 +12,7 @@ The Android Remote Controller is a versatile application designed to manage devi
 
 ## Screenshots
 
-![Screenshot 1](./Screenshots.png)
+[//]: # (mostriamo uno screenshot dell'applicazione che si trova nel root del progetto)
+![Screenshot](Screenshot.png)
 
 
