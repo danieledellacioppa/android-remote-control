@@ -10,34 +10,44 @@ import com.forteur.androidremotecontroller.tools.termux.TermuxCommandException
 import com.forteur.androidremotecontroller.tools.termux.TermuxCommandExecutor
 
 class TermuxViewModel(application: Application) : AndroidViewModel(application) {
-    private val _log = MutableLiveData<String>()
-    val log: LiveData<String> = _log
+    private val _events = MutableLiveData<List<CommandEvent>>(listOf())
+    val events: LiveData<List<CommandEvent>> = _events
 
     init {
-        LogMessageRepository.logMessages.observeForever {
-            val currentLog = _log.value ?: ""
-            _log.value = if (currentLog.isEmpty()) it else "$currentLog\n$it"
+        LogMessageRepository.logMessages.observeForever { output ->
+            appendEvent(CommandEvent.Output(output))
         }
     }
 
     fun sendCommand(command: String, args: Array<String>) {
+        appendEvent(CommandEvent.Output("Executing command: $command ${args.joinToString(" ")}"))
         try {
             val executor = TermuxCommandExecutor(getApplication())
             executor.executeCommand(command, args)
+            appendEvent(CommandEvent.Success("Command executed successfully"))
         } catch (e: TermuxCommandException) {
-            appendToLog("Error: ${e.message}")
+            appendEvent(CommandEvent.Error("Failed to execute command: ${e.message}"))
         }
     }
 
-    private fun appendToLog(message: String) {
-        val currentLog = _log.value ?: ""
-        _log.value = if (currentLog.isEmpty()) message else "$currentLog\n$message"
+    private fun appendEvent(event: CommandEvent) {
+        val updatedEvents = _events.value?.toMutableList() ?: mutableListOf()
+        updatedEvents.add(event)
+        _events.postValue(updatedEvents)
     }
 
     override fun onCleared() {
         super.onCleared()
-        LogMessageRepository.logMessages.removeObserver { /* Observer you added */ }
+        LogMessageRepository.logMessages.removeObserver { /* Implement proper removal */ }
     }
 }
+
+
+sealed class CommandEvent {
+    data class Success(val message: String) : CommandEvent()
+    data class Error(val error: String) : CommandEvent()
+    data class Output(val output: String) : CommandEvent()
+}
+
 
 

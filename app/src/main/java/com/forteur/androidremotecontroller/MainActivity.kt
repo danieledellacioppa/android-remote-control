@@ -95,9 +95,8 @@ data class CommandDetails(val command: Array<String>, val icon: Int)
 
 @Composable
 fun TermuxInterface(viewModel: TermuxViewModel) {
-    val lifecycleOwner = LocalLifecycleOwner.current
-    val log = viewModel.log.observeAsState("")
-    val scrollState = rememberScrollState()  // Declared once and used for the Text composable
+    val events = viewModel.events.observeAsState(listOf())
+    val scrollState = rememberScrollState()
 
     Column(modifier = Modifier.fillMaxSize()) {
         Box(
@@ -106,42 +105,59 @@ fun TermuxInterface(viewModel: TermuxViewModel) {
                 .background(Color.Black.copy(alpha = 0.1f), RoundedCornerShape(10.dp))
                 .fillMaxWidth()
                 .heightIn(max = 200.dp)
+                .verticalScroll(scrollState)
         ) {
-            Column(modifier = Modifier
-                .padding(16.dp)
-                .verticalScroll(scrollState)  // Use the same scrollState here
-            ) {
-                Text(text = "Output Termux:", fontWeight = FontWeight.Bold)
-                Text(text = log.value ?: "", modifier = Modifier.padding(bottom = 8.dp))
+            Column(modifier = Modifier.padding(16.dp)) {
+                events.value?.forEach { event ->
+                    Text(
+                        text = when (event) {
+                            is CommandEvent.Output -> event.output
+                            is CommandEvent.Error -> event.error
+                            is CommandEvent.Success -> event.message
+                        },
+                        color = when (event) {
+                            is CommandEvent.Output -> Color.White
+                            is CommandEvent.Error -> Color.Red
+                            is CommandEvent.Success -> Color.Green
+                        },
+                        fontWeight = FontWeight.Bold
+                    )
+                }
             }
         }
 
-        // LaunchedEffect to automatically scroll to the bottom
-        LaunchedEffect(key1 = log.value) {  // Ensure it triggers on log value change
+        LaunchedEffect(key1 = events.value) {
             scrollState.animateScrollTo(scrollState.maxValue)
         }
 
-        Spacer(modifier = Modifier.height(16.dp))  // Adds space between the box and the grid
+        Spacer(modifier = Modifier.height(16.dp))
 
-        // LazyVerticalGrid that displays the command buttons
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(3), // Set the number of columns
-            contentPadding = PaddingValues(8.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-            modifier = Modifier.fillMaxWidth().weight(1f)  // Takes up all remaining space
-        ) {
-            items(AdbCommands.commands) { command ->
-                CommandCard(
-                    label = command.first,
-                    command = command.second.command,
-                    icon = command.second.icon,
-                    viewModel = viewModel
-                )
-            }
+        CommandGrid(viewModel = viewModel)
+    }
+}
+
+
+
+@Composable
+fun CommandGrid(viewModel: TermuxViewModel) {
+    LazyVerticalGrid(
+        columns = GridCells.Fixed(3), // Set the number of columns
+        contentPadding = PaddingValues(8.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+        modifier = Modifier.fillMaxSize()
+    ) {
+        items(AdbCommands.commands) { command ->
+            CommandCard(
+                label = command.first,
+                command = command.second.command,
+                icon = command.second.icon,
+                viewModel = viewModel
+            )
         }
     }
 }
+
 
 @Composable
 fun CommandCard(label: String, command: Array<String>, icon: Int, viewModel: TermuxViewModel) {
