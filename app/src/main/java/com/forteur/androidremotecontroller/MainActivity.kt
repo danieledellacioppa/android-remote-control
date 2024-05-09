@@ -1,10 +1,6 @@
 package com.forteur.androidremotecontroller
 
-import android.os.Build
 import android.os.Bundle
-import android.view.Window
-import android.view.WindowInsetsController
-import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
@@ -14,7 +10,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -27,9 +22,7 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -39,13 +32,11 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelProvider
+import com.forteur.androidremotecontroller.tools.termux.AdbCommands
 import com.forteur.androidremotecontroller.ui.theme.AndroidRemoteControllerTheme
 
 class MainActivity : ComponentActivity() {
@@ -70,28 +61,7 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-object AdbCommands {
-    const val ADB_PATH = "/data/data/com.termux/files/usr/bin/adb"
-    val CONNECT = CommandDetails(arrayOf(ADB_PATH, "connect", "192.168.0.152"), R.drawable.icon_connect)
-    val DEVICES = CommandDetails(arrayOf(ADB_PATH, "devices"), R.drawable.icon_devices)
-    val REBOOT = CommandDetails(arrayOf(ADB_PATH, "reboot"), R.drawable.icon_reboot)
-    val HOME = CommandDetails(arrayOf(ADB_PATH, "shell", "input", "keyevent", "KEYCODE_HOME"), R.drawable.icon_home)
-    val SHUTDOWN = CommandDetails(arrayOf(ADB_PATH, "shell", "reboot", "-p"), R.drawable.icon_shutdown)
-    val BACK = CommandDetails(arrayOf(ADB_PATH, "shell", "input", "keyevent", "KEYCODE_BACK"), R.drawable.icon_back)
-    val TOGGLE_SCREEN = CommandDetails(arrayOf(ADB_PATH, "shell", "input", "keyevent", "KEYCODE_POWER"), R.drawable.toggle_screen)
 
-    // Lista di tutti i comandi per l'uso in LazyVerticalGrid
-    val commands = listOf(
-        Pair("Connect to device", CONNECT),
-        Pair("Devices connected", DEVICES),
-        Pair("Reboot device", REBOOT),
-        Pair("Home", HOME),
-        Pair("Shutdown", SHUTDOWN),
-        Pair("Back", BACK),
-        Pair("Toggle screen", TOGGLE_SCREEN)
-    )
-}
-data class CommandDetails(val command: Array<String>, val icon: Int)
 
 @Composable
 fun TermuxInterface(viewModel: TermuxViewModel) {
