@@ -13,6 +13,7 @@ object AdbCommands {
     val TOGGLE_SCREEN = CommandDetails(arrayOf(ADB_PATH, "shell", "input", "keyevent", "KEYCODE_POWER"), R.drawable.toggle_screen)
     val SELECT_VIDEO_INPUT = CommandDetails(arrayOf(ADB_PATH, "shell", "input", "keyevent", "KEYCODE_TV_INPUT"), R.drawable.video_input_source)
     val SIGNAL_SOURCE = CommandDetails(arrayOf(ADB_PATH, "shell", "input", "keyevent", "2158"), R.drawable.signale_source)
+    val SETTINGS = CommandDetails(arrayOf(ADB_PATH, "shell", "input", "keyevent", "KEYCODE_SETTINGS"), R.drawable.icon_settings)
 
     // Lista di tutti i comandi per l'uso in LazyVerticalGrid
     val commands = listOf(
@@ -24,7 +25,8 @@ object AdbCommands {
         Pair("Back", BACK),
         Pair("Toggle screen", TOGGLE_SCREEN),
         Pair("Select video input", SELECT_VIDEO_INPUT),
-        Pair("Signal source", SIGNAL_SOURCE)
+        Pair("Signal source", SIGNAL_SOURCE),
+        Pair("Settings", SETTINGS)
     )
 }
 data class CommandDetails(val command: Array<String>, val icon: Int)
