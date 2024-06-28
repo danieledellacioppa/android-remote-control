@@ -19,6 +19,13 @@ class TermuxViewModel(application: Application) : AndroidViewModel(application) 
         }
     }
 
+    private val _deviceIp = MutableLiveData<String>("192.168.0.159")  // Default IP address
+    val deviceIp: LiveData<String> = _deviceIp
+
+    fun updateDeviceIp(newIp: String) {
+        _deviceIp.value = newIp
+    }
+
     fun sendCommand(command: String, args: Array<String>) {
         appendEvent(CommandEvent.Output("Executing command: $command ${args.joinToString(" ")}"))
         try {

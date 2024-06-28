@@ -13,6 +13,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.livedata.observeAsState
@@ -53,9 +54,17 @@ import com.forteur.androidremotecontroller.TermuxViewModel
 @Composable
 fun TermuxInterface(viewModel: TermuxViewModel) {
     val events = viewModel.events.observeAsState(listOf())
+    val ip = viewModel.deviceIp.observeAsState()
     val scrollState = rememberScrollState()
 
     Column(modifier = Modifier.fillMaxSize()) {
+        TextField(
+            value = ip.value ?: "",
+            onValueChange = { viewModel.updateDeviceIp(it) },
+            label = { Text("Device IP") },
+            singleLine = true,
+            modifier = Modifier.padding(16.dp)
+        )
         Box(
             modifier = Modifier
                 .padding(16.dp)

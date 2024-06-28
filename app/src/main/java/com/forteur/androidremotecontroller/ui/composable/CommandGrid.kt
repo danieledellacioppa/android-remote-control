@@ -7,6 +7,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.forteur.androidremotecontroller.TermuxViewModel
@@ -37,8 +38,9 @@ import com.forteur.androidremotecontroller.tools.termux.AdbCommands
  */
 @Composable
 fun CommandGrid(viewModel: TermuxViewModel) {
+    val ip = viewModel.deviceIp.observeAsState()
     LazyVerticalGrid(
-        columns = GridCells.Fixed(3), // Set the number of columns
+        columns = GridCells.Fixed(3),
         contentPadding = PaddingValues(8.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -47,7 +49,7 @@ fun CommandGrid(viewModel: TermuxViewModel) {
         items(AdbCommands.commands) { command ->
             CommandCard(
                 label = command.first,
-                command = command.second.command,
+                command = command.second.getFullCommand(ip.value ?: "192.168.0.159"),
                 icon = command.second.icon,
                 viewModel = viewModel
             )
