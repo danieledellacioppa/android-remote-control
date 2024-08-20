@@ -15,11 +15,28 @@ object AdbCommands {
     val SIGNAL_SOURCE = CommandDetails(arrayOf(ADB_PATH), arrayOf("shell", "input", "keyevent", "2158"), R.drawable.signale_source)
     val SETTINGS = CommandDetails(arrayOf(ADB_PATH), arrayOf("shell", "input", "keyevent", "KEYCODE_SETTINGS"), R.drawable.icon_settings)
     val MENU = CommandDetails(arrayOf(ADB_PATH), arrayOf("shell", "input", "keyevent", "KEYCODE_MENU"), R.drawable.icon_menu)
+    val PULL_HOSTS = CommandDetails(
+        arrayOf(ADB_PATH),
+        arrayOf("pull", "/etc/hosts", "."),
+        R.drawable.icon_pull_hosts
+    )
+
+    val SHOW_HOSTS = CommandDetails(
+        arrayOf(ADB_PATH),
+        arrayOf("shell", "cat", "/etc/hosts"),
+        R.drawable.icon_pull_hosts
+    )
+
+    val PUSH_HOSTS = CommandDetails(
+        arrayOf(ADB_PATH),
+        arrayOf("push", "./hosts", "/etc/hosts"),
+        R.drawable.icon_push_hosts
+    )
 
     // Lista di tutti i comandi per l'uso in LazyVerticalGrid
     val commands = listOf(
-        Pair("Connecto to device", CONNECT),
-        Pair("Devices connectate", DEVICES),
+        Pair("Connect to device", CONNECT),
+        Pair("Show device list", DEVICES),
         Pair("Reboot device", REBOOT),
         Pair("Home", HOME),
         Pair("Shutdown", SHUTDOWN),
@@ -28,7 +45,10 @@ object AdbCommands {
         Pair("Select video input", SELECT_VIDEO_INPUT),
         Pair("Signal source", SIGNAL_SOURCE),
         Pair("Settings", SETTINGS),
-        Pair("Menu", MENU)
+        Pair("Menu", MENU),
+        Pair("Pull hosts file", PULL_HOSTS),
+        Pair("Push hosts file", PUSH_HOSTS),
+        Pair("Show hosts file", SHOW_HOSTS)
     )
 }
 data class CommandDetails(val commandPrefix: Array<String>, val commandSuffix: Array<String>, val icon: Int, val ipAtEnd: Boolean = false) {

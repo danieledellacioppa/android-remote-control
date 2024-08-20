@@ -3,11 +3,19 @@ package com.forteur.androidremotecontroller.ui.composable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.material3.Button
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.forteur.androidremotecontroller.TermuxViewModel
@@ -39,6 +47,8 @@ import com.forteur.androidremotecontroller.tools.termux.AdbCommands
 @Composable
 fun CommandGrid(viewModel: TermuxViewModel) {
     val ip = viewModel.deviceIp.observeAsState()
+    var showEditDialog by remember { mutableStateOf(false) }
+
     LazyVerticalGrid(
         columns = GridCells.Fixed(3),
         contentPadding = PaddingValues(8.dp),
@@ -54,5 +64,33 @@ fun CommandGrid(viewModel: TermuxViewModel) {
                 viewModel = viewModel
             )
         }
+
+        // Bottone per aprire il dialogo di modifica del file hosts
+        item {
+            Button(
+                onClick = {
+                    // Esegui SHOW_HOSTS prima di aprire il dialogo di modifica
+                    viewModel.sendCommand(AdbCommands.SHOW_HOSTS.getFullCommand(ip.value ?: "192.168.0.159")[0], arrayOf())
+                    showEditDialog = true
+                },
+                modifier = Modifier.fillMaxWidth().padding(8.dp)
+            ) {
+                Text("Edit Hosts File")
+            }
+        }
+
+        // Aggiunta della CommandCard per Pull e Push Hosts
+//        item {
+//            CommandCardPullAndPushHosts(viewModel)
+//        }
+    }
+
+    // Mostra il dialogo di modifica se l'utente preme il bottone "Edit Hosts File"
+    if (showEditDialog) {
+        EditHostsDialog(viewModel = viewModel) {
+            showEditDialog = false
+        }
     }
 }
+
+
