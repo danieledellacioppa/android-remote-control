@@ -92,18 +92,19 @@ class TermuxViewModel(application: Application) : AndroidViewModel(application) 
         Log.d("TermuxViewModel", "Creating hostsmod file in Termux with modified hosts content.")
 
         val touchCommand = "/data/data/com.termux/files/usr/bin/touch"
-        val echoCommand = "/data/data/com.termux/files/usr/bin/echo"
         val adbCommand = "/data/data/com.termux/files/usr/bin/adb"
+        val shellCommand = "/data/data/com.termux/files/usr/bin/sh"
 
         // Crea il file hostsmod usando touch
         val touchArgs = arrayOf("./hostsmod")
         Log.d("TermuxViewModel", "Creating empty file ./hostsmod with touch")
         sendCommand(touchCommand, touchArgs)
 
-        // Popola il file hostsmod riga per riga usando echo
+        // Popola il file hostsmod riga per riga usando una shell command
         content.lines().forEach { line ->
-            val echoArgs = arrayOf(line, ">>", "./hostsmod")
-            sendCommand(echoCommand, echoArgs)
+            val echoCommand = "echo \"$line\" >> ./hostsmod"
+            val shellArgs = arrayOf("-c", echoCommand)
+            sendCommand(shellCommand, shellArgs)
         }
 
         // Comando per fare il push del file hostsmod nel dispositivo remoto
@@ -111,6 +112,7 @@ class TermuxViewModel(application: Application) : AndroidViewModel(application) 
         Log.d("TermuxViewModel", "Pushing ./hostsmod to remote /etc/hosts")
         sendCommand(adbCommand, pushArgs)
     }
+
 
 
 
