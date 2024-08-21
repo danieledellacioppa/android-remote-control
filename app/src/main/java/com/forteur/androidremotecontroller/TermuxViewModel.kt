@@ -84,15 +84,36 @@ class TermuxViewModel(application: Application) : AndroidViewModel(application) 
     // Salva il contenuto modificato in una variabile
     fun saveModifiedHostsContent(content: String) {
         modifiedHostsContent = content
+        Log.d("TermuxViewModel", "Modified hosts content saved: $content")
     }
 
-    // Metodo per inviare il comando ad adb per aggiornare il file hosts
     fun pushModifiedHostsToRemote() {
         val content = modifiedHostsContent ?: return
-        val command = "/data/data/com.termux/files/usr/bin/adb"
-        val args = arrayOf("shell", "echo", content, ">", "/etc/hosts")
-        sendCommand(command, args)
+        Log.d("TermuxViewModel", "Creating hostsmod file in Termux with modified hosts content.")
+
+        val touchCommand = "/data/data/com.termux/files/usr/bin/touch"
+        val echoCommand = "/data/data/com.termux/files/usr/bin/echo"
+        val adbCommand = "/data/data/com.termux/files/usr/bin/adb"
+
+        // Crea il file hostsmod usando touch
+        val touchArgs = arrayOf("./hostsmod")
+        Log.d("TermuxViewModel", "Creating empty file ./hostsmod with touch")
+        sendCommand(touchCommand, touchArgs)
+
+        // Popola il file hostsmod riga per riga usando echo
+        content.lines().forEach { line ->
+            val echoArgs = arrayOf(line, ">>", "./hostsmod")
+            sendCommand(echoCommand, echoArgs)
+        }
+
+        // Comando per fare il push del file hostsmod nel dispositivo remoto
+        val pushArgs = arrayOf("push", "./hostsmod", "/etc/hosts")
+        Log.d("TermuxViewModel", "Pushing ./hostsmod to remote /etc/hosts")
+        sendCommand(adbCommand, pushArgs)
     }
+
+
+
 }
 
 
