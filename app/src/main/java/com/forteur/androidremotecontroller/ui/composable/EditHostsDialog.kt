@@ -1,5 +1,6 @@
 package com.forteur.androidremotecontroller.ui.composable
 
+import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.AlertDialog
@@ -28,7 +29,10 @@ fun EditHostsDialog(viewModel: TermuxViewModel, onDismiss: () -> Unit) {
             Column {
                 TextField(
                     value = content,
-                    onValueChange = { content = it },
+                    onValueChange = {
+                        content = it
+                        Log.d("EditHostsDialog", "Content updated to: $content")
+                    },
                     label = { Text("Hosts Content") }
                 )
             }
@@ -36,7 +40,9 @@ fun EditHostsDialog(viewModel: TermuxViewModel, onDismiss: () -> Unit) {
         confirmButton = {
             Button(
                 onClick = {
-                    viewModel.modifyHostsFile(content)
+                    Log.d("EditHostsDialog", "Saving content: $content")
+                    viewModel.saveModifiedHostsContent(content)
+                    viewModel.pushModifiedHostsToRemote()
                     onDismiss()
                 }
             ) {
@@ -52,3 +58,7 @@ fun EditHostsDialog(viewModel: TermuxViewModel, onDismiss: () -> Unit) {
         }
     )
 }
+
+
+
+

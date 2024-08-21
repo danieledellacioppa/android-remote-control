@@ -15,23 +15,11 @@ object AdbCommands {
     val SIGNAL_SOURCE = CommandDetails(arrayOf(ADB_PATH), arrayOf("shell", "input", "keyevent", "2158"), R.drawable.signale_source)
     val SETTINGS = CommandDetails(arrayOf(ADB_PATH), arrayOf("shell", "input", "keyevent", "KEYCODE_SETTINGS"), R.drawable.icon_settings)
     val MENU = CommandDetails(arrayOf(ADB_PATH), arrayOf("shell", "input", "keyevent", "KEYCODE_MENU"), R.drawable.icon_menu)
-    val PULL_HOSTS = CommandDetails(
-        arrayOf(ADB_PATH),
-        arrayOf("pull", "/etc/hosts", "."),
-        R.drawable.icon_pull_hosts
-    )
-
-    val SHOW_HOSTS = CommandDetails(
-        arrayOf(ADB_PATH),
-        arrayOf("shell", "cat", "/etc/hosts"),
-        R.drawable.icon_pull_hosts
-    )
-
-    val PUSH_HOSTS = CommandDetails(
-        arrayOf(ADB_PATH),
-        arrayOf("push", "./hosts", "/etc/hosts"),
-        R.drawable.icon_push_hosts
-    )
+    val PULL_HOSTS = CommandDetails(arrayOf(ADB_PATH), arrayOf("pull", "/etc/hosts", "."), R.drawable.icon_pull_hosts)
+    val SHOW_HOSTS = CommandDetails(arrayOf(ADB_PATH), arrayOf("shell", "cat", "/etc/hosts"), R.drawable.icon_pull_hosts)
+    val PUSH_HOSTS = CommandDetails(arrayOf(ADB_PATH), arrayOf("push", "./hosts", "/etc/hosts"), R.drawable.icon_push_hosts)
+    val ADB_ROOT = CommandDetails(arrayOf(ADB_PATH), arrayOf("root"), R.drawable.adb_root)
+    val ADB_REMOUNT = CommandDetails(arrayOf(ADB_PATH), arrayOf("remount"), R.drawable.adb_remount)
 
     // Lista di tutti i comandi per l'uso in LazyVerticalGrid
     val commands = listOf(
@@ -48,7 +36,9 @@ object AdbCommands {
         Pair("Menu", MENU),
         Pair("Pull hosts file", PULL_HOSTS),
         Pair("Push hosts file", PUSH_HOSTS),
-        Pair("Show hosts file", SHOW_HOSTS)
+        Pair("Show hosts file", SHOW_HOSTS),
+        Pair("ADB root", ADB_ROOT),
+        Pair("ADB remount", ADB_REMOUNT)
     )
 }
 data class CommandDetails(val commandPrefix: Array<String>, val commandSuffix: Array<String>, val icon: Int, val ipAtEnd: Boolean = false) {
