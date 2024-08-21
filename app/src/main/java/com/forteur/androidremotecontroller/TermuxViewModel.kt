@@ -94,6 +94,10 @@ class TermuxViewModel(application: Application) : AndroidViewModel(application) 
         val touchCommand = "/data/data/com.termux/files/usr/bin/touch"
         val adbCommand = "/data/data/com.termux/files/usr/bin/adb"
         val shellCommand = "/data/data/com.termux/files/usr/bin/sh"
+        val rmCommand = "/data/data/com.termux/files/usr/bin/rm"
+
+        val rmArgs = arrayOf("./hostsmod")
+        sendCommand(rmCommand, rmArgs)
 
         // Crea il file hostsmod usando touch
         val touchArgs = arrayOf("./hostsmod")
