@@ -8,7 +8,7 @@ object AdbCommands {
     val DEVICES = CommandDetails(arrayOf(ADB_PATH), arrayOf("devices"), R.drawable.icon_devices)
     val REBOOT = CommandDetails(arrayOf(ADB_PATH), arrayOf("reboot"), R.drawable.icon_reboot)
     val HOME = CommandDetails(arrayOf(ADB_PATH), arrayOf("shell", "input", "keyevent", "KEYCODE_HOME"), R.drawable.icon_home)
-    val SHUTDOWN = CommandDetails(arrayOf(ADB_PATH), arrayOf("shell", "input", "keyevent", "KEYCODE_POWER"), R.drawable.icon_shutdown)
+    val SHUTDOWN = CommandDetails(arrayOf(ADB_PATH), arrayOf("shell", "reboot", "-p"), R.drawable.icon_shutdown)
     val BACK = CommandDetails(arrayOf(ADB_PATH), arrayOf("shell", "input", "keyevent", "KEYCODE_BACK"), R.drawable.icon_back)
     val TOGGLE_SCREEN = CommandDetails(arrayOf(ADB_PATH), arrayOf("shell", "input", "keyevent", "KEYCODE_POWER"), R.drawable.toggle_screen)
     val SELECT_VIDEO_INPUT = CommandDetails(arrayOf(ADB_PATH), arrayOf("shell", "input", "keyevent", "KEYCODE_TV_INPUT"), R.drawable.video_input_source)
