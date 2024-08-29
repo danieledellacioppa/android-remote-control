@@ -27,7 +27,7 @@ fun CommandCardPullAndPushHosts(viewModel: TermuxViewModel) {
             .clickable {
                 viewModel.sendCommand(AdbCommands.PULL_HOSTS.getFullCommand(viewModel.deviceIp.value ?: "192.168.0.159")[0], arrayOf())
 //                viewModel.modifyHostsFile() // Modifica il file una volta scaricato
-                viewModel.sendCommand(AdbCommands.PUSH_HOSTS.getFullCommand(viewModel.deviceIp.value ?: "192.168.0.159")[0], arrayOf())
+//                viewModel.sendCommand(AdbCommands.PUSH_HOSTS.getFullCommand(viewModel.deviceIp.value ?: "192.168.0.159")[0], arrayOf())
             },
         shape = MaterialTheme.shapes.medium
     ) {
