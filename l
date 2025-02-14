@@ -17,21 +17,21 @@ if [ $build_exit_code -eq 0 ]; then
   echo "Build completata con successo!"
 
   # Prova ad installare l'app
-  adb -s ZY32HW49KC install -r app/build/outputs/apk/debug/app-debug.apk
+  adb -s adb-ZY32HW49KC-EOtKlb._adb-tls-connect._tcp install -r app/build/outputs/apk/debug/app-debug.apk
 
   # Verifica il codice di uscita dell'installazione
   install_exit_code=$?
 
   if [ $install_exit_code -ne 0 ]; then
     echo "Installazione fallita, possibile problema di firma non corrispondente. Tentativo di reinstallazione..."
-    adb -s ZY32HW49KC uninstall com.forteur.androidremotecontroller
-    adb -s ZY32HW49KC install -r app/build/outputs/apk/debug/app-debug.apk
+    adb -s adb-ZY32HW49KC-EOtKlb._adb-tls-connect._tcp uninstall com.forteur.androidremotecontroller
+    adb -s adb-ZY32HW49KC-EOtKlb._adb-tls-connect._tcp install -r app/build/outputs/apk/debug/app-debug.apk
   fi
 
   # Controlla se la variabile DEBUG è impostata su "true"
   if [ "$DEBUG" = "true" ]; then
     echo "Esecuzione in modalità debug..."
-    adb -s ZY32HW49KC shell am start -D -n  com.forteur.androidremotecontroller/.MainActivity
+    adb -s adb-ZY32HW49KC-EOtKlb._adb-tls-connect._tcp shell am start -D -n  com.forteur.androidremotecontroller/.MainActivity
   fi
 else
   echo "La build ha avuto errori. L'installazione non verrà effettuata..."

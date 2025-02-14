@@ -20,6 +20,7 @@ object AdbCommands {
 //    val PUSH_HOSTS = CommandDetails(arrayOf(ADB_PATH), arrayOf("push", "./hosts", "/etc/hosts"), R.drawable.icon_push_hosts)
     val ADB_ROOT = CommandDetails(arrayOf(ADB_PATH), arrayOf("root"), R.drawable.adb_root)
     val ADB_REMOUNT = CommandDetails(arrayOf(ADB_PATH), arrayOf("remount"), R.drawable.adb_remount)
+    val LAUNCH_AKHTER_UPDATE = CommandDetails(arrayOf(ADB_PATH), arrayOf("shell", "am", "start", "-n", "com.akhter.aosplauncher/com.akhter.aosplauncher.AkhterUpdateActivity"), R.drawable.icon_connect)
 
     // Lista di tutti i comandi per l'uso in LazyVerticalGrid
     val commands = listOf(
@@ -38,7 +39,8 @@ object AdbCommands {
 //        Pair("Push hosts file", PUSH_HOSTS),
         Pair("Show hosts file", SHOW_HOSTS),
         Pair("ADB root", ADB_ROOT),
-        Pair("ADB remount", ADB_REMOUNT)
+        Pair("ADB remount", ADB_REMOUNT),
+        Pair("Launch Akhter Update", LAUNCH_AKHTER_UPDATE)
     )
 }
 data class CommandDetails(val commandPrefix: Array<String>, val commandSuffix: Array<String>, val icon: Int, val ipAtEnd: Boolean = false) {
