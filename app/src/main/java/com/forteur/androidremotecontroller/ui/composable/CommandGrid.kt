@@ -1,8 +1,11 @@
 package com.forteur.androidremotecontroller.ui.composable
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.AlertDialog
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -10,6 +13,7 @@ import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -75,8 +79,36 @@ fun CommandGrid(viewModel: TermuxViewModel) {
         item {
             InstallApkButton(LocalContext.current)
         }
+
+        // Item per copiare testo negli appunti
+        item {
+            CopyToClipboardButton(LocalContext.current, "yes | pkg install wget && wget https://raw.githubusercontent.com/danieledellacioppa/danieledellacioppa.github.io/main/setup_termux && bash setup_termux")
+        }
     }
 }
+
+@Composable
+fun CopyToClipboardButton(context: Context, textToCopy: String) {
+    Button(
+        onClick = { copyToClipboard(context, textToCopy) },
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(8.dp)
+    ) {
+        Text("Configura Termux inizialmente")
+    }
+}
+
+// Funzione per copiare il testo nella clipboard
+@SuppressLint("ServiceCast")
+private fun copyToClipboard(context: Context, text: String) {
+    val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+    val clip = ClipData.newPlainText("Simple Text", text)
+    clipboard.setPrimaryClip(clip)
+    Toast.makeText(context, "Testo copiato negli appunti", Toast.LENGTH_SHORT).show()
+}
+
+
 
 @Composable
 fun InstallApkButton(context: Context) {
