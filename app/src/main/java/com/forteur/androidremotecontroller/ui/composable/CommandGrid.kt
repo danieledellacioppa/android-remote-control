@@ -1,17 +1,34 @@
 package com.forteur.androidremotecontroller.ui.composable
 
+import android.Manifest
+import android.app.Activity
+import android.app.AlertDialog
+import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
+import android.os.Handler
+import android.os.Looper
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.material3.Button
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.core.content.FileProvider
 import com.forteur.androidremotecontroller.TermuxViewModel
 import com.forteur.androidremotecontroller.tools.termux.AdbCommands
+import java.io.File
+import java.io.FileOutputStream
 
 /**
  * Displays a grid of command cards, each corresponding to a different action or command
@@ -54,5 +71,74 @@ fun CommandGrid(viewModel: TermuxViewModel) {
                 viewModel = viewModel
             )
         }
+
+        item {
+            InstallApkButton(LocalContext.current)
+        }
     }
 }
+
+@Composable
+fun InstallApkButton(context: Context) {
+    val activity = context as? Activity
+
+    Button(
+        onClick = {
+            showInstallDialog(context)
+        },
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(8.dp)
+    ) {
+        Text("Installa Termux!")
+    }
+}
+
+private fun showInstallDialog(context: Context) {
+    val dialog = AlertDialog.Builder(context)
+        .setTitle("Installazione APK")
+        .setMessage("Vuoi installare l'APK inclusa nell'app?")
+        .setPositiveButton("Installa") { dialog, _ ->
+            dialog.dismiss() // Chiude il dialog prima di procedere
+            installApk(context)
+        }
+        .setNegativeButton("Annulla", null)
+        .create()
+
+    dialog.show()
+}
+
+
+private fun installApk(context: Context) {
+    Handler(Looper.getMainLooper()).post {
+        try{
+            val apkFileName = "termux-app_apt-android-7-debug_armeabi-v7a.apk" // Nome corretto
+            val apkFile = File(context.externalCacheDir, apkFileName)
+
+            val assetFiles = context.assets.list("")?.toList()
+            Log.d("Assets", "File disponibili: $assetFiles")
+
+
+            context.assets.open(apkFileName).use { input ->
+                FileOutputStream(apkFile).use { output ->
+                    input.copyTo(output)
+                }
+            }
+
+            val apkUri = FileProvider.getUriForFile(
+                context,
+                "${context.packageName}.provider",
+                apkFile
+            )
+
+            val intent = Intent(Intent.ACTION_VIEW).apply {
+                setDataAndType(apkUri, "application/vnd.android.package-archive")
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+            context.startActivity(intent)
+        } catch (e: Exception) {
+            Log.e("InstallAPK", "Errore durante l'installazione: ${e.message}")
+        }
+    }
+}
+
