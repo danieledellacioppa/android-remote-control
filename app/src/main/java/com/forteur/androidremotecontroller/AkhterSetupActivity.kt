@@ -1,5 +1,7 @@
 package com.forteur.androidremotecontroller
 
+import android.content.Context
+import android.net.wifi.WifiManager
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -71,11 +73,11 @@ class AkhterSetupActivity : ComponentActivity() {
                 logMessages.contains("Error") -> Log.e("AkhterSetup", "Errore ADB rilevato: $logMessages")
                 logMessages.contains("AKHTER PAIR") -> executeAdbCommands(ip)
                 logMessages.contains("AKHTER DONE") -> sendHomeIntent(ip)
-                logMessages.contains("package:com.akhter.aosplauncher") &&
-                        logMessages.contains("package:com.xbh.launcher") -> {
-                    Log.d("AkhterSetup", "Entrambi i launcher trovati. Riavvio in recovery.")
-                    runAdbCommand(arrayOf("-s", ip, "reboot", "recovery"))
-                }
+//                logMessages.contains("package:com.akhter.aosplauncher") &&
+//                        logMessages.contains("package:com.xbh.launcher") -> {
+//                    Log.d("AkhterSetup", "Entrambi i launcher trovati. Riavvio in recovery.")
+//                    runAdbCommand(arrayOf("-s", ip, "reboot", "recovery"))
+//                }
                 logMessages.contains("package:com.akhter.aosplauncher") -> {
                     Log.d("AkhterSetup", "Akhter Launcher trovato, avvio pairing.")
                     triggerAkhterPair(ip)
@@ -127,6 +129,11 @@ class AkhterSetupActivity : ComponentActivity() {
     }
 
     private fun listenForBroadcast(onMessageReceived: (String, String) -> Unit) {
+        val wifiManager = applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
+        val multicastLock = wifiManager.createMulticastLock("AkhterSetupLock")
+        multicastLock.setReferenceCounted(true)
+        multicastLock.acquire() // Abilita la ricezione di pacchetti UDP broadcast
+
         try {
             val socket = DatagramSocket(BROADCAST_PORT)
             val buffer = ByteArray(1024)
@@ -136,13 +143,20 @@ class AkhterSetupActivity : ComponentActivity() {
                 socket.receive(packet)
 
                 val message = String(packet.data, 0, packet.length).trim()
-                val ipAddress = message.split(" ")[0]
+                val parts = message.split(" ")
+                if (parts.size < 2) continue // Messaggio non valido
 
-                Log.d("AkhterSetup", "Received UDP message: $message from $ipAddress")
-                onMessageReceived(message, ipAddress)
+
+                val ipAddress = parts[0]
+                val command = parts.drop(1).joinToString(" ")
+
+                Log.d("AkhterSetup", "Received UDP message: $command from $ipAddress")
+                onMessageReceived(command, ipAddress)
             }
         } catch (e: Exception) {
             Log.e("AkhterSetup", "Error in broadcast receiver: ${e.message}")
+        } finally {
+            multicastLock.release() // Rilascia il lock per evitare problemi di rete
         }
     }
 
