@@ -1,4 +1,4 @@
-package com.akhter.siliconlauncher13.tools.termux
+package com.forteur.androidremotecontroller.tools.termux
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData

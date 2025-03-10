@@ -2,9 +2,7 @@ package com.forteur.androidremotecontroller.tools.termux
 
 import android.app.IntentService
 import android.content.Intent
-import android.os.Bundle
 import android.util.Log
-import com.akhter.siliconlauncher13.tools.termux.LogMessageRepository
 import com.termux.shared.termux.TermuxConstants
 
 // we should covert IntentService to JobIntentService or WorkManager

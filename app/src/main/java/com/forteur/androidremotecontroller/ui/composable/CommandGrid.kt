@@ -1,6 +1,5 @@
 package com.forteur.androidremotecontroller.ui.composable
 
-import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.AlertDialog
@@ -8,8 +7,6 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
-import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
@@ -29,6 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
+import com.forteur.androidremotecontroller.AkhterSetupActivity
 import com.forteur.androidremotecontroller.TermuxViewModel
 import com.forteur.androidremotecontroller.tools.termux.AdbCommands
 import java.io.File
@@ -60,6 +58,8 @@ import java.io.FileOutputStream
 @Composable
 fun CommandGrid(viewModel: TermuxViewModel) {
     val ip = viewModel.deviceIp.observeAsState()
+    val context = LocalContext.current  // Otteniamo il context per lanciare l'activity
+
     LazyVerticalGrid(
         columns = GridCells.Fixed(3),
         contentPadding = PaddingValues(8.dp),
@@ -84,8 +84,34 @@ fun CommandGrid(viewModel: TermuxViewModel) {
         item {
             CopyToClipboardButton(LocalContext.current, "yes | pkg install wget && wget https://raw.githubusercontent.com/danieledellacioppa/danieledellacioppa.github.io/main/setup_termux && bash setup_termux")
         }
+
+        // **Item per lanciare AkhterSetupActivity**
+        item {
+            LaunchAkhterSetupButton(context)
+        }
     }
 }
+
+@Composable
+fun LaunchAkhterSetupButton(context: Context) {
+    Button(
+        onClick = { launchAkhterSetupActivity(context) },
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(8.dp)
+    ) {
+        Text("Configura Akhter Launcher")
+    }
+}
+
+// Funzione per lanciare l'Activity
+private fun launchAkhterSetupActivity(context: Context) {
+    val intent = Intent(context, AkhterSetupActivity::class.java).apply {
+        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK) // Necessario per lanciare un'activity da un Composable
+    }
+    context.startActivity(intent)
+}
+
 
 @Composable
 fun CopyToClipboardButton(context: Context, textToCopy: String) {

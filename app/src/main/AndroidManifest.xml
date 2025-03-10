@@ -33,6 +33,12 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name=".AkhterSetupActivity"
+            android:exported="true"
+            android:theme="@style/Theme.AndroidRemoteController">
+        </activity>
+
         <service android:name=".tools.termux.PluginResultsService" />
 
         <provider

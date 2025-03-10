@@ -5,7 +5,6 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.util.Log
-import com.akhter.siliconlauncher13.tools.termux.LogMessageRepository
 import com.termux.shared.termux.TermuxConstants
 
 class TermuxCommandExecutor(private val context: Context) {

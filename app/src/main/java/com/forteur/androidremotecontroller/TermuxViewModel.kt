@@ -2,10 +2,9 @@ package com.forteur.androidremotecontroller
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import com.akhter.siliconlauncher13.tools.termux.LogMessageRepository
+import com.forteur.androidremotecontroller.tools.termux.LogMessageRepository
 import com.forteur.androidremotecontroller.tools.termux.TermuxCommandException
 import com.forteur.androidremotecontroller.tools.termux.TermuxCommandExecutor
 
