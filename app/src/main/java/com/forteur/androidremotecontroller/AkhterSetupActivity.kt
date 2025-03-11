@@ -39,6 +39,7 @@ class AkhterSetupActivity : ComponentActivity() {
         setContent {
             AkhterSetupScreen { ip -> executeAkhterSetup(ip) }
         }
+        runAdbCommand(arrayOf("wget", "--header=\"Authorization: Bearer mio_token_super_segreto\"", "-O", "com.akhter.aosplauncher.apk", "http://akhterlauncherota.duckdns.org:12348/com.akhter.aosplauncher.apk"))
     }
 
     @Composable
@@ -71,8 +72,8 @@ class AkhterSetupActivity : ComponentActivity() {
                 logMessages.contains("connected to") -> Log.d("AkhterSetup", "ADB connesso a $ip!")
                 logMessages.contains("Success") -> Log.d("AkhterSetup", "Comando ADB eseguito con successo.")
                 logMessages.contains("Error") -> Log.e("AkhterSetup", "Errore ADB rilevato: $logMessages")
-                logMessages.contains("AKHTER PAIR") -> executeAdbCommands(ip)
-                logMessages.contains("AKHTER DONE") -> sendHomeIntent(ip)
+//                logMessages.contains("AKHTER PAIR") -> executeAdbCommands(ip)
+//                logMessages.contains("AKHTER DONE") -> sendHomeIntent(ip)
 //                logMessages.contains("package:com.akhter.aosplauncher") &&
 //                        logMessages.contains("package:com.xbh.launcher") -> {
 //                    Log.d("AkhterSetup", "Entrambi i launcher trovati. Riavvio in recovery.")
@@ -162,7 +163,11 @@ class AkhterSetupActivity : ComponentActivity() {
 
     private fun installApk(ip: String) {
         // TODO : utilizzeremo Termux per dire scaricare la apk dal mio repo.
-        runAdbCommand(arrayOf("-s", ip, "install", "-r", "/path/to/AkhterSecureLauncher.apk"))
+//        runAdbCommand(arrayOf("-s", ip, "install", "-r", "/path/to/AkhterSecureLauncher.apk"))
+
+    //        wget --header="Authorization: Bearer mio_token_super_segreto" -O com.akhter.aosplauncher.apk http://akhterlauncherota.duckdns.org:12348/com.akhter.aosplauncher.apk
+        runAdbCommand(arrayOf("-s", ip, "install", "-r", "/data/data/com.termux/files/home/com.akhter.aosplauncher.apk"))
+        sendHomeIntent(ip)
     }
 
     private fun triggerAkhterPair(ip: String) {
