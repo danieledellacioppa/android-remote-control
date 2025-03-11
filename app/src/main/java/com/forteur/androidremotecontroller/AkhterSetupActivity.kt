@@ -39,7 +39,14 @@ class AkhterSetupActivity : ComponentActivity() {
         setContent {
             AkhterSetupScreen { ip -> executeAkhterSetup(ip) }
         }
-        runAdbCommand(arrayOf("wget", "--header=\"Authorization: Bearer mio_token_super_segreto\"", "-O", "com.akhter.aosplauncher.apk", "http://akhterlauncherota.duckdns.org:12348/com.akhter.aosplauncher.apk"))
+//        runAdbCommand(arrayOf("wget", "--header=\"Authorization: Bearer mio_token_super_segreto\"", "-O", "com.akhter.aosplauncher.apk", "http://akhterlauncherota.duckdns.org:12348/com.akhter.aosplauncher.apk"))
+
+//        executor.executeCommand("/data/data/com.termux/files/usr/bin/wget",
+//                                arrayOf("--header=\"Authorization: Bearer mio_token_super_segreto\"", "-O", "com.akhter.aosplauncher.apk", "http://akhterlauncherota.duckdns.org:12348/com.akhter.aosplauncher.apk"))
+
+        executor.executeCommand("/data/data/com.termux/files/usr/bin/sh",
+            arrayOf("-c", "wget --header='Authorization: Bearer mio_token_super_segreto' -O com.akhter.aosplauncher.apk http://akhterlauncherota.duckdns.org:12348/com.akhter.aosplauncher.apk"))
+
     }
 
     @Composable
@@ -167,7 +174,7 @@ class AkhterSetupActivity : ComponentActivity() {
 
     //        wget --header="Authorization: Bearer mio_token_super_segreto" -O com.akhter.aosplauncher.apk http://akhterlauncherota.duckdns.org:12348/com.akhter.aosplauncher.apk
         runAdbCommand(arrayOf("-s", ip, "install", "-r", "/data/data/com.termux/files/home/com.akhter.aosplauncher.apk"))
-        sendHomeIntent(ip)
+//        sendHomeIntent(ip)
     }
 
     private fun triggerAkhterPair(ip: String) {
