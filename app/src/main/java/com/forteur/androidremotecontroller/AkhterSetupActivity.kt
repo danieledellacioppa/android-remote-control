@@ -169,11 +169,17 @@ class AkhterSetupActivity : ComponentActivity() {
     }
 
     private fun installApk(ip: String) {
-        // TODO : utilizzeremo Termux per dire scaricare la apk dal mio repo.
+        // TODO : utilizzeremo Termux per dire scaricare la apk dal mio repo. //Viene fatto all' avvio della activity
 //        runAdbCommand(arrayOf("-s", ip, "install", "-r", "/path/to/AkhterSecureLauncher.apk"))
 
     //        wget --header="Authorization: Bearer mio_token_super_segreto" -O com.akhter.aosplauncher.apk http://akhterlauncherota.duckdns.org:12348/com.akhter.aosplauncher.apk
-        runAdbCommand(arrayOf("-s", ip, "install", "-r", "/data/data/com.termux/files/home/com.akhter.aosplauncher.apk"))
+
+//        runAdbCommand(arrayOf("-s", ip, "install", "-r", "/data/data/com.termux/files/home/com.akhter.aosplauncher.apk"))
+
+        Log.d("AkhterSetup", "Issuing installAndLaunch command...")
+        executor.executeCommand("/data/data/com.termux/files/home/installAndLaunch", arrayOf(ip))
+
+
 //        sendHomeIntent(ip)
     }
 

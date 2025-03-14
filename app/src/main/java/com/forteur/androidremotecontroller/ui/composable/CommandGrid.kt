@@ -70,7 +70,7 @@ fun CommandGrid(viewModel: TermuxViewModel) {
         items(AdbCommands.commands) { command ->
             CommandCard(
                 label = command.first,
-                command = command.second.getFullCommand(ip.value ?: "192.168.0.159"),
+                command = command.second.getFullCommand(ip.value ?: "192.168.0.36"),
                 icon = command.second.icon,
                 viewModel = viewModel
             )

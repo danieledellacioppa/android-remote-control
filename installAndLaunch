@@ -1,0 +1,36 @@
+#!/bin/bash
+
+# Configura variabili
+APK_PATH="/data/data/com.termux/files/home/com.akhter.aosplauncher.apk"
+DEVICE_IP="$1"
+PACKAGE_NAME="com.akhter.aosplauncher"
+MAIN_ACTIVITY="com.akhter.aosplauncher.NeoLauncher"
+
+# Controlla se l'IP è stato passato come argomento
+if [ -z "$DEVICE_IP" ]; then
+    echo "Usage: $0 <device_ip>"
+    exit 1
+fi
+
+# Connessione ADB al dispositivo
+echo "🔗 Connettendo ADB al dispositivo $DEVICE_IP..."
+adb connect "$DEVICE_IP"
+
+# Installa l'APK
+echo "📦 Installando l'APK sul dispositivo..."
+adb -s "$DEVICE_IP" install -r "$APK_PATH"
+
+# Controlla se l'installazione è avvenuta con successo
+if [ $? -eq 0 ]; then
+    echo "✅ APK installato con successo!"
+    
+    # Avvia il launcher installato
+    echo "🚀 Avviando il launcher..."
+    adb -s "$DEVICE_IP" shell am start -n "$PACKAGE_NAME/$MAIN_ACTIVITY"
+
+    echo "✅ Launcher avviato correttamente!"
+else
+    echo "❌ Errore durante l'installazione dell'APK!"
+    exit 1
+fi
+
