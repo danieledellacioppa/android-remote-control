@@ -44,6 +44,12 @@
             android:theme="@style/Theme.AndroidRemoteController">
         </activity>
 
+        <activity
+            android:name=".utils.SettingsActivity"
+            android:exported="true"
+            android:theme="@style/Theme.AndroidRemoteController">
+        </activity>
+
         <service android:name=".tools.termux.PluginResultsService" />
 
         <provider

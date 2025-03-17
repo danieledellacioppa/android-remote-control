@@ -72,4 +72,7 @@ dependencies {
     implementation("com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava")
     implementation("androidx.compose.runtime:runtime-livedata:1.2.1")
 
+    //datastore
+    implementation("androidx.datastore:datastore-preferences:1.1.3")
+
 }

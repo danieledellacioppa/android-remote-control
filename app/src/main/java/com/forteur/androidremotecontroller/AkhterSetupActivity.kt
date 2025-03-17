@@ -1,6 +1,7 @@
 package com.forteur.androidremotecontroller
 
 import android.content.Context
+import android.content.Intent
 import android.net.wifi.WifiManager
 import android.os.Bundle
 import android.util.Log
@@ -16,10 +17,14 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.lifecycleScope
 import com.forteur.androidremotecontroller.tools.termux.LogMessageRepository
 import com.forteur.androidremotecontroller.tools.termux.TermuxCommandExecutor
+import com.forteur.androidremotecontroller.utils.SettingsActivity
+import com.forteur.androidremotecontroller.utils.SettingsRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.net.DatagramPacket
@@ -28,25 +33,27 @@ import java.net.DatagramSocket
 @OptIn(ExperimentalMaterial3Api::class)
 class AkhterSetupActivity : ComponentActivity() {
 
+    private lateinit var settingsRepository: SettingsRepository
+
     private val BROADCAST_PORT = 8888
     private lateinit var executor: TermuxCommandExecutor
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        settingsRepository = SettingsRepository(applicationContext)
 
         executor = TermuxCommandExecutor(applicationContext)
 
         setContent {
+            val serverAddress by settingsRepository.serverAddress.collectAsState(initial = "http://akhterlauncherota.duckdns.org:12348")
+
             AkhterSetupScreen { ip -> executeAkhterSetup(ip) }
+
+            val apkUrl = "$serverAddress/com.akhter.aosplauncher.apk"
+
+            executor.executeCommand("/data/data/com.termux/files/usr/bin/sh",
+                arrayOf("-c", "wget --header='Authorization: Bearer mio_token_super_segreto' -O com.akhter.aosplauncher.apk $apkUrl"))
         }
-//        runAdbCommand(arrayOf("wget", "--header=\"Authorization: Bearer mio_token_super_segreto\"", "-O", "com.akhter.aosplauncher.apk", "http://akhterlauncherota.duckdns.org:12348/com.akhter.aosplauncher.apk"))
-
-//        executor.executeCommand("/data/data/com.termux/files/usr/bin/wget",
-//                                arrayOf("--header=\"Authorization: Bearer mio_token_super_segreto\"", "-O", "com.akhter.aosplauncher.apk", "http://akhterlauncherota.duckdns.org:12348/com.akhter.aosplauncher.apk"))
-
-        executor.executeCommand("/data/data/com.termux/files/usr/bin/sh",
-            arrayOf("-c", "wget --header='Authorization: Bearer mio_token_super_segreto' -O com.akhter.aosplauncher.apk http://akhterlauncherota.duckdns.org:12348/com.akhter.aosplauncher.apk"))
-
     }
 
     @Composable
@@ -103,6 +110,17 @@ class AkhterSetupActivity : ComponentActivity() {
                 .padding(16.dp)
                 .verticalScroll(rememberScrollState())
         ) {
+            Button(
+                onClick = {
+                    val intent = Intent(applicationContext, SettingsActivity::class.java)
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    applicationContext.startActivity(intent)
+                },
+                modifier = Modifier.padding(top = 8.dp)
+            ) {
+                Text("Impostazioni")
+            }
+
             Text("Enter Device IP:")
             BasicTextField(
                 value = ip,
