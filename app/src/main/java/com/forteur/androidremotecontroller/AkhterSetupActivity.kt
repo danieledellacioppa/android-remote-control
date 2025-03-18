@@ -7,7 +7,11 @@ import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
@@ -63,6 +67,15 @@ class AkhterSetupActivity : ComponentActivity() {
         val coroutineScope = rememberCoroutineScope()
         val logMessages by LogMessageRepository.logMessages.observeAsState("")
 
+        // Stato per tenere traccia della posizione dello scroll
+        val scrollState = rememberScrollState()
+        val logLines = logMessages.split("\n")
+
+        // Effetto per scrollare automaticamente quando arriva un nuovo log
+        LaunchedEffect(logMessages) {
+            scrollState.animateScrollTo(scrollState.maxValue)
+        }
+
         // Unico LaunchedEffect per gestire Broadcast e parsing LogMessageRepository
         LaunchedEffect(Unit) {
             coroutineScope.launch(Dispatchers.IO) {
@@ -86,13 +99,6 @@ class AkhterSetupActivity : ComponentActivity() {
                 logMessages.contains("connected to") -> Log.d("AkhterSetup", "ADB connesso a $ip!")
                 logMessages.contains("Success") -> Log.d("AkhterSetup", "Comando ADB eseguito con successo.")
                 logMessages.contains("Error") -> Log.e("AkhterSetup", "Errore ADB rilevato: $logMessages")
-//                logMessages.contains("AKHTER PAIR") -> executeAdbCommands(ip)
-//                logMessages.contains("AKHTER DONE") -> sendHomeIntent(ip)
-//                logMessages.contains("package:com.akhter.aosplauncher") &&
-//                        logMessages.contains("package:com.xbh.launcher") -> {
-//                    Log.d("AkhterSetup", "Entrambi i launcher trovati. Riavvio in recovery.")
-//                    runAdbCommand(arrayOf("-s", ip, "reboot", "recovery"))
-//                }
                 logMessages.contains("package:com.akhter.aosplauncher") -> {
                     Log.d("AkhterSetup", "Akhter Launcher trovato, avvio pairing.")
                     triggerAkhterPair(ip)
@@ -104,47 +110,71 @@ class AkhterSetupActivity : ComponentActivity() {
             }
         }
 
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp)
-                .verticalScroll(rememberScrollState())
+        Row(
+            modifier = Modifier.fillMaxSize()
         ) {
-            Button(
-                onClick = {
-                    val intent = Intent(applicationContext, SettingsActivity::class.java)
-                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                    applicationContext.startActivity(intent)
-                },
-                modifier = Modifier.padding(top = 8.dp)
-            ) {
-                Text("Impostazioni")
-            }
-
-            Text("Enter Device IP:")
-            BasicTextField(
-                value = ip,
-                onValueChange = { ip = it },
-                keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
-                keyboardActions = KeyboardActions(onDone = { onStartSetup(ip) }),
+            Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp)
-            )
-
-            Button(
-                onClick = { onStartSetup(ip) },
-                modifier = Modifier.padding(top = 8.dp)
+                    .fillMaxSize()
+                    .padding(16.dp)
+                    .verticalScroll(rememberScrollState())
             ) {
-                Text("Start Setup")
+                Button(
+                    onClick = {
+                        val intent = Intent(applicationContext, SettingsActivity::class.java)
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        applicationContext.startActivity(intent)
+                    },
+                    modifier = Modifier.padding(top = 8.dp)
+                ) {
+                    Text("Impostazioni")
+                }
+
+                Text("Enter Device IP:")
+                BasicTextField(
+                    value = ip,
+                    onValueChange = { ip = it },
+                    keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
+                    keyboardActions = KeyboardActions(onDone = { onStartSetup(ip) }),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp)
+                )
+
+                Button(
+                    onClick = { onStartSetup(ip) },
+                    modifier = Modifier.padding(top = 8.dp)
+                ) {
+                    Text("Start Setup")
+                }
+                // **Colonna separata per il log**
+                Column(
+                    modifier = Modifier
+                        .weight(0.4f) // Occupa il 40% della larghezza
+                        .fillMaxHeight()
+                        .padding(8.dp)
+                        .background(MaterialTheme.colorScheme.background)
+                        .border(1.dp, MaterialTheme.colorScheme.primary)
+                ) {
+
+                    Text("Logs:", modifier = Modifier.padding(8.dp))
+
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(8.dp)
+                    ) {
+                        LazyColumn(
+                            modifier = Modifier.fillMaxSize(),
+                            state = rememberLazyListState()
+                        ) {
+                            items(logLines.size) { index ->
+                                Text(text = logLines[index])
+                            }
+                        }
+                    }
+                }
             }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Text(
-                text = logText,
-                modifier = Modifier.fillMaxWidth()
-            )
         }
     }
 
@@ -187,18 +217,8 @@ class AkhterSetupActivity : ComponentActivity() {
     }
 
     private fun installApk(ip: String) {
-        // TODO : utilizzeremo Termux per dire scaricare la apk dal mio repo. //Viene fatto all' avvio della activity
-//        runAdbCommand(arrayOf("-s", ip, "install", "-r", "/path/to/AkhterSecureLauncher.apk"))
-
-    //        wget --header="Authorization: Bearer mio_token_super_segreto" -O com.akhter.aosplauncher.apk http://akhterlauncherota.duckdns.org:12348/com.akhter.aosplauncher.apk
-
-//        runAdbCommand(arrayOf("-s", ip, "install", "-r", "/data/data/com.termux/files/home/com.akhter.aosplauncher.apk"))
-
         Log.d("AkhterSetup", "Issuing installAndLaunch command...")
         executor.executeCommand("/data/data/com.termux/files/home/installAndLaunch", arrayOf(ip))
-
-
-//        sendHomeIntent(ip)
     }
 
     private fun triggerAkhterPair(ip: String) {
