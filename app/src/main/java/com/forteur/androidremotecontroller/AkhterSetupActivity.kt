@@ -67,13 +67,14 @@ class AkhterSetupActivity : ComponentActivity() {
         val coroutineScope = rememberCoroutineScope()
         val logMessages by LogMessageRepository.logMessages.observeAsState("")
 
-        // Stato per tenere traccia della posizione dello scroll
-        val scrollState = rememberScrollState()
+        // Stato dello scroll per LazyColumn
+        val listState = rememberLazyListState()
+
         val logLines = logMessages.split("\n")
 
         // Effetto per scrollare automaticamente quando arriva un nuovo log
         LaunchedEffect(logMessages) {
-            scrollState.animateScrollTo(scrollState.maxValue)
+            listState.animateScrollToItem( logLines.size - 1)
         }
 
         // Unico LaunchedEffect per gestire Broadcast e parsing LogMessageRepository
@@ -166,7 +167,7 @@ class AkhterSetupActivity : ComponentActivity() {
                     ) {
                         LazyColumn(
                             modifier = Modifier.fillMaxSize(),
-                            state = rememberLazyListState()
+                            state = listState
                         ) {
                             items(logLines.size) { index ->
                                 Text(text = logLines[index])
