@@ -138,8 +138,8 @@ class AkhterSetupActivity : ComponentActivity() {
             while (true) {
                 // 1) Esegui "cat wget_log.txt" tramite TermuxCommandExecutor
                 executor.executeCommand(
-                    "/data/data/com.termux/files/usr/bin/cat",
-                    arrayOf("/data/data/com.termux/files/home/wget_log.txt")
+                    "/data/data/com.termux/files/usr/bin/tail",
+                    arrayOf("-n", "2", "/data/data/com.termux/files/home/wget_log.txt")
                 )
 
                 // 2) Aspetta 5 secondi
