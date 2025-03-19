@@ -87,7 +87,8 @@ class AkhterSetupActivity : ComponentActivity() {
         // Stato dello scroll per LazyColumn
         val listState = rememberLazyListState()
 
-        val logLines = logMessages.split("\n")
+//        val logLines = logMessages.split("\n")
+        val logLines = logText.split("\n")
 
         // Effetto per scrollare automaticamente quando arriva un nuovo log
         LaunchedEffect(logMessages) {
@@ -220,6 +221,7 @@ class AkhterSetupActivity : ComponentActivity() {
                 ) {
 
                     Text("Logs:", modifier = Modifier.padding(8.dp))
+                    Text("logLines: ${logLines.size}")
 
                     Box(
                         modifier = Modifier
