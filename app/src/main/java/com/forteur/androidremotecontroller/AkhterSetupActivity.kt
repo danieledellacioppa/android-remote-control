@@ -30,6 +30,7 @@ import com.forteur.androidremotecontroller.tools.termux.TermuxCommandExecutor
 import com.forteur.androidremotecontroller.utils.SettingsActivity
 import com.forteur.androidremotecontroller.utils.SettingsRepository
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.net.DatagramPacket
 import java.net.DatagramSocket
@@ -51,23 +52,27 @@ class AkhterSetupActivity : ComponentActivity() {
         setContent {
             val serverAddress by settingsRepository.serverAddress.collectAsState(initial = "http://akhterlauncherota.duckdns.org:12348")
 
+            // Avvio "wget" con output in wget_log.txt
+            val apkUrl = "$serverAddress/com.akhter.aosplauncher.apk"
+            // Esegui la wget una sola volta, appena entri in composable
+            LaunchedEffect(Unit) {
+                executor.executeCommand(
+                    "/data/data/com.termux/files/usr/bin/sh",
+                    arrayOf(
+                        "-c",
+                        "wget --progress=dot:mega --header='Authorization: Bearer mio_token_super_segreto' " +
+                                "$apkUrl -O /data/data/com.termux/files/home/com.akhter.aosplauncher.apk " +
+                                "2>&1 | tee /data/data/com.termux/files/home/wget_log.txt"
+                    )
+                )
+            }
+
             AkhterSetupScreen { ip -> executeAkhterSetup(ip) }
 
-            val apkUrl = "$serverAddress/com.akhter.aosplauncher.apk"
-
+//            val apkUrl = "$serverAddress/com.akhter.aosplauncher.apk"
+//
 //            executor.executeCommand("/data/data/com.termux/files/usr/bin/sh",
-//                arrayOf("-c", "wget --header='Authorization: Bearer mio_token_super_segreto' -O com.akhter.aosplauncher.apk $apkUrl"))
-
-//            wget --progress=dot:mega http://example.com/bigfile.iso -O /data/data/com.termux/files/home/bigfile.iso \
-//     2>&1 | tee /data/data/com.termux/files/home/wget_log.txt
-
-//            executor.executeCommand("/data/data/com.termux/files/usr/bin/wget",
-//                arrayOf("--progress=dot:mega", apkUrl, "-O", "/data/data/com.termux/files/home/com.akhter.aosplauncher.apk",
-//                    "2>&1", "|", "tee", "/data/data/com.termux/files/home/wget_log.txt"))
-
-            executor.executeCommand("/data/data/com.termux/files/usr/bin/sh",
-                arrayOf("-c", "wget --progress=dot:mega --header='Authorization: Bearer mio_token_super_segreto' $apkUrl -O /data/data/com.termux/files/home/com.akhter.aosplauncher.apk 2>&1 | tee /data/data/com.termux/files/home/wget_log.txt"))
-
+//                arrayOf("-c", "wget --progress=dot:mega --header='Authorization: Bearer mio_token_super_segreto' $apkUrl -O /data/data/com.termux/files/home/com.akhter.aosplauncher.apk 2>&1 | tee /data/data/com.termux/files/home/wget_log.txt"))
 
         }
     }
@@ -121,6 +126,50 @@ class AkhterSetupActivity : ComponentActivity() {
                     installApk(ip)
                 }
             }
+        }
+
+        // *** NUOVO: Effetto per fare polling di "cat wget_log.txt" ogni 5 secondi ***
+        LaunchedEffect(Unit) {
+            val pollingInterval = 3000L       // 5 secondi
+            val maxNoChangeTries = 10
+            var noChangeCount = 0
+            var previousPollOutput = ""       // Contenuto polled in precedenza
+
+            while (true) {
+                // 1) Esegui "cat wget_log.txt" tramite TermuxCommandExecutor
+                executor.executeCommand(
+                    "/data/data/com.termux/files/usr/bin/cat",
+                    arrayOf("/data/data/com.termux/files/home/wget_log.txt")
+                )
+
+                // 2) Aspetta 5 secondi
+                delay(pollingInterval)
+
+                // 3) Controlla se abbiamo raggiunto "100%"
+                if (logMessages.contains("100%")) {
+                    // consideriamo la wget terminata
+                    Log.d("AkhterSetup", "Rilevato 100% => Fine download, stop polling.")
+                    break
+                }
+
+                // 4) Controlla se l'output non è cambiato
+                if (logMessages == previousPollOutput) {
+                    noChangeCount++
+                } else {
+                    noChangeCount = 0
+                    previousPollOutput = logMessages
+                }
+
+                if (noChangeCount >= maxNoChangeTries) {
+                    Log.d("AkhterSetup", "Log invariato per $maxNoChangeTries polling => stop.")
+                    break
+                }
+            }
+
+            // Qui siamo fuori dal while => non eseguiamo più polling
+            LogMessageRepository.postLogMessage(
+                "\n** STOP polling wget_log.txt (finito o bloccato) **\n"
+            )
         }
 
         Row(
