@@ -68,12 +68,6 @@ class AkhterSetupActivity : ComponentActivity() {
             }
 
             AkhterSetupScreen { ip -> executeAkhterSetup(ip) }
-
-//            val apkUrl = "$serverAddress/com.akhter.aosplauncher.apk"
-//
-//            executor.executeCommand("/data/data/com.termux/files/usr/bin/sh",
-//                arrayOf("-c", "wget --progress=dot:mega --header='Authorization: Bearer mio_token_super_segreto' $apkUrl -O /data/data/com.termux/files/home/com.akhter.aosplauncher.apk 2>&1 | tee /data/data/com.termux/files/home/wget_log.txt"))
-
         }
     }
 
