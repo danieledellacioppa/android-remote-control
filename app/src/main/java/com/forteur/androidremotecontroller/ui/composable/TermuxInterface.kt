@@ -1,28 +1,39 @@
 package com.forteur.androidremotecontroller.ui.composable
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.forteur.androidremotecontroller.CommandEvent
 import com.forteur.androidremotecontroller.TermuxViewModel
+import com.forteur.androidremotecontroller.tools.termux.AdbCommands
 
 /**
  * Constructs the primary user interface for displaying command outputs and a grid of command buttons.
@@ -51,20 +62,32 @@ import com.forteur.androidremotecontroller.TermuxViewModel
  *
  */
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TermuxInterface(viewModel: TermuxViewModel) {
     val events = viewModel.events.observeAsState(listOf())
     val ip = viewModel.deviceIp.observeAsState()
     val scrollState = rememberScrollState()
+    var showRemoteDialog by remember { mutableStateOf(false) }
 
     Column(modifier = Modifier.fillMaxSize()) {
-        TextField(
-            value = ip.value ?: "",
-            onValueChange = { viewModel.updateDeviceIp(it) },
-            label = { Text("Device IP") },
-            singleLine = true,
-            modifier = Modifier.padding(16.dp)
-        )
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            TextField(
+                value = ip.value ?: "",
+                onValueChange = { viewModel.updateDeviceIp(it) },
+                label = { Text("Device IP") },
+                singleLine = true,
+                modifier = Modifier.weight(1f)
+            )
+            Button(onClick = { showRemoteDialog = true }) {
+                Text("Remote")
+            }
+        }
         Box(
             modifier = Modifier
                 .padding(16.dp)
@@ -100,4 +123,93 @@ fun TermuxInterface(viewModel: TermuxViewModel) {
 
         CommandGrid(viewModel = viewModel)
     }
+
+    if (showRemoteDialog) {
+        RemoteControlDialog(
+            ipAddress = ip.value ?: "192.168.0.159",
+            onDismiss = { showRemoteDialog = false },
+            onSendKeyEvent = { keyCode ->
+                viewModel.sendCommand(
+                    AdbCommands.ADB_PATH,
+                    arrayOf("-s", ip.value ?: "192.168.0.159", "shell", "input", "keyevent", keyCode.toString())
+                )
+            }
+        )
+    }
+}
+
+@Composable
+private fun RemoteControlDialog(
+    ipAddress: String,
+    onDismiss: () -> Unit,
+    onSendKeyEvent: (Int) -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Remote Control ($ipAddress)") },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    Button(onClick = { onSendKeyEvent(19) }) {
+                        Text("↑")
+                    }
+                }
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    Button(onClick = { onSendKeyEvent(21) }) {
+                        Text("←")
+                    }
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Button(onClick = { onSendKeyEvent(66) }) {
+                        Text("OK")
+                    }
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Button(onClick = { onSendKeyEvent(22) }) {
+                        Text("→")
+                    }
+                }
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    Button(onClick = { onSendKeyEvent(20) }) {
+                        Text("↓")
+                    }
+                }
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    Button(
+                        onClick = { onSendKeyEvent(64) },
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text("Browser")
+                    }
+                    Button(
+                        onClick = { onSendKeyEvent(83) },
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text("Swipe Down")
+                    }
+                }
+                Button(
+                    onClick = { onSendKeyEvent(187) },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Recent Apps")
+                }
+            }
+        },
+        confirmButton = {
+            Button(onClick = onDismiss) {
+                Text("Close")
+            }
+        }
+    )
 }
